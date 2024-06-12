@@ -1,0 +1,78 @@
+---
+title: "climate_sewanee"
+author: "Ramzy Maraqa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+```
+
+#Climate Change (Sewanee) Project
+
+### Average temperature from 2000-2020
+
+```{r}
+
+climate <- read_csv("sewanee_weather.csv")
+
+climate <- climate %>% 
+  mutate(year = year(DATE))
+climate<- climate %>% 
+  mutate( average_temp = (TMAX+TMIN)/2)
+
+climate_2010_2020 <- climate %>% 
+  filter(year >= 2010 & year <= 2020) %>% 
+  group_by(year) %>% 
+  summarise(average_temp = mean(average_temp, na.rm = TRUE))
+
+ggplot( data = climate_2010_2020, aes(x = year, y = average_temp))+
+  geom_line()
+
+```
+
+
+
+### Minium and maxium temperature over time for the entire period
+```{r}
+Max_Temp <- climate %>% 
+  group_by(year) %>% 
+  summarise(average_max_temp = mean(TMAX, na.rm = TRUE))
+ggplot(data = Max_Temp, aes(x = year, y = average_max_temp))+
+  geom_line()+
+  labs( title = "Maximum Temperate",
+        x = "Years",
+        y = "Average Maximum Temperature",
+        caption = "Average Maximum Temperature from 2000-2024")
+
+ 
+Min_Temp <- climate %>% 
+  group_by(year) %>% 
+  summarise(average_min_temp = mean(TMIN, na.rm = TRUE))
+ggplot(data = Min_Temp, aes(x = year, y = average_min_temp))+
+  geom_line()+
+  labs(title = "Minimum Temperature",
+       x = "Years",
+       y = "Average Minimum Temperature",
+       caption = "Average Minimum Temperature from 2000-2024")
+
+```
+```{r}
+climate_min_max <- climate %>%
+  select(year, TMIN, TMAX) %>%
+  group_by(year) %>%
+  summarize(TMIN = mean(TMIN, na.rm = TRUE), TMAX = mean(TMAX, na.rm = TRUE))
+ggplot(data = climate_min_max) +
+  geom_line(aes(x = year, y = TMIN)) +
+  geom_line(aes(x = year, y = TMAX)) +
+  labs(title = "Annual Min.and Max. Temperature Per Year, 2000-2024",
+       x = "Year",
+       y = "Min. and Max. Temperature in Degrees Farenheit") +
+  theme_light()
+```
+
